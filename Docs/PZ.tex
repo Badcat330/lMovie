@@ -1,3 +1,97 @@
+\documentclass[a4paper,16pt]{article}
+
+%%% Работа с русским языком
+\usepackage{cmap}					% поиск в PDF
+\usepackage{mathtext} 				% русские буквы в фомулах
+\usepackage[T2A]{fontenc}			% кодировка
+\usepackage[utf8]{inputenc}			% кодировка исходного текста
+\usepackage[english,russian]{babel}	% локализация и переносы
+
+%%% Дополнительная работа с математикой
+\usepackage{amsmath,amsfonts,amssymb,amsthm,mathtools} % AMS
+\usepackage{icomma} % "Умная" запятая
+
+%% Шрифты
+\usepackage{euscript}	 % Шрифт Евклид
+\usepackage{mathrsfs}    % Красивый матшрифт
+
+%% Абзац
+\usepackage{indentfirst}
+
+%% Перенос знаков в формулах (по Львовскому)
+\newcommand*{\hm}[1]{#1\nobreak\discretionary{}
+{\hbox{$\mathsurround=0pt #1$}}{}}
+
+%% Вставка картинок
+\usepackage{graphicx}
+\graphicspath{{Picture/}}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+
+%% Источники
+\usepackage[nottoc]{tocbibind}
+
+%% Работа с ссылками
+\usepackage{url}
+\usepackage{hyperref}
+
+%% Работа с кодом
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.90,0.90,0.90}
+\definecolor{keywordcolor}{RGB}{0,94,255}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{keywordcolor},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\title{lMovie}
+\author{Александр Глушко, Денис Молдавский, \\ Михаил Сердюков, Валерий Айхенвальд}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Назначение}
+\subsection{Функциональное назначение}
+\subsection{Эксплуатационное назначение}
+
+
+\section{Требования}
+\subsection{Требования к вкладки список фильмов}
+\subsection{Требования к вкладки список кинотеатров}
+\subsection{Требования к вкладки коллекция фильмов}
+\subsection{Требования к вкладки профиль}
+
+\section{Проектирование модели данных}
+\subsection{ER диаграмма}
+\subsection{Ограничения наложенные на данные}
+\subsection{Нормализованная схема}
+\subsection{SQL DDL script}
+\begin{lstlisting}[language=SQL]
 -- drop table reward_movie;
 -- drop table picture_movie;
 -- drop table actor_movie;
@@ -206,3 +300,13 @@ create table reward_movie (
     foreign key (reward_id) references reward (id),
     foreign key (movie_id) references movie (id)
 );
+\end{lstlisting}
+
+\section{Запросы}
+\subsection{Запросы для вкладки список фильмов}
+\subsection{Запросы для вкладки список кинотеатров}
+\subsection{Запросы для вкладки коллекция фильмов}
+\subsection{Запросы для вкладки профиль}
+
+\end{document}
+
