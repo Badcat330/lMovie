@@ -64,7 +64,7 @@ create table producer (
     id number primary key not null,
     name nvarchar2(256) not null,
     surname nvarchar2(256) not null,
-    birthday date,
+    birthday date not null,
     discription nvarchar2(4000)
 );
 
@@ -72,14 +72,13 @@ create table actor (
     id number primary key not null,
     name nvarchar2(256) not null,
     surname nvarchar2(256) not null,
-    birthday date,
+    birthday date not null,
     discription nvarchar2(4000)
 );
 
 create table reward (
-    id number primary key not null,
-    name nvarchar2(256) not null,
-    discription nvarchar2(4000)
+    name nvarchar2(256) primary key not null,
+    discription nvarchar2(4000) not null
 );
 
 create table picture (
@@ -104,7 +103,7 @@ create table room (
     id number primary key not null,
     room_number nvarchar2(256) not null,
     amount_sits number not null,
-    sit_type nvarchar2(4000),
+    sit_type nvarchar2(4000) not null, --Todo add json check
     cinema_id number not null,
     foreign key (cinema_id) references cinema (id)
 );
@@ -118,7 +117,7 @@ create table movie (
     movie_duration number,
     description nvarchar2(4000),
     producer_id number not null,
-    studio_name nvarchar2(256),
+    studio_name nvarchar2(256) not null,
     foreign key (producer_id) references producer (id),
     foreign key (studio_name) references studio (name)
 );
@@ -145,6 +144,7 @@ create table ticket (
 create table user_movie (
     movie_id number not null,
     user_login nvarchar2(256) not null,
+    rating number,
     constraint user_movie_pk primary key (movie_id, user_login),
     foreign key (user_login) references app_user (login),
     foreign key (movie_id) references movie (id)
@@ -169,18 +169,18 @@ create table genre_movie (
 
 create table producer_reward (
     producer_id number not null,
-    reward_id number not null, 
-    constraint producer_reward_pk primary key (producer_id, reward_id),
+    reward_name nvarchar2(256) not null, 
+    constraint producer_reward_pk primary key (producer_id, reward_name),
     foreign key (producer_id) references producer (id),
-    foreign key (reward_id) references reward (id)
+    foreign key (reward_name) references reward (name)
 );
 
 create table actor_reward (
     actor_id number not null,
-    reward_id number not null,
-    constraint actor_reward_pk primary key (actor_id, reward_id),
+    reward_name nvarchar2(256) not null,
+    constraint actor_reward_pk primary key (actor_id, reward_name),
     foreign key (actor_id) references actor (id),
-    foreign key (reward_id) references reward (id)
+    foreign key (reward_name) references reward (name)
 );
 
 create table actor_movie (
@@ -194,15 +194,15 @@ create table actor_movie (
 create table picture_movie (
     picture_id number not null,
     movie_id number not null,
-    constraint picture_movie_id primary key (picture_id, movie_id),
+    constraint picture_movie_pk primary key (picture_id, movie_id),
     foreign key (picture_id) references picture (id),
     foreign key (movie_id) references movie (id)
 );
 
 create table reward_movie (
-    reward_id number not null,
+    reward_name nvarchar2(256) not null,
     movie_id number not null,
-    constraint reward_movie_id primary key (reward_id, movie_id),
-    foreign key (reward_id) references reward (id),
+    constraint reward_movie_pk primary key (reward_name, movie_id),
+    foreign key (reward_name) references reward (name),
     foreign key (movie_id) references movie (id)
 );
