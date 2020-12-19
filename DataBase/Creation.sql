@@ -103,9 +103,10 @@ create table room (
     id number primary key not null,
     room_number nvarchar2(256) not null,
     amount_sits number not null,
-    sit_type nvarchar2(4000) not null, --Todo add json check
+    sit_type nvarchar2(4000) not null,
     cinema_id number not null,
-    foreign key (cinema_id) references cinema (id)
+    foreign key (cinema_id) references cinema (id),
+    constraint ensure_json check (sit_type is json)
 );
 
 create table movie (

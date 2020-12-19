@@ -22,13 +22,13 @@
 \newcommand*{\hm}[1]{#1\nobreak\discretionary{}
 {\hbox{$\mathsurround=0pt #1$}}{}}
 
+%% Источники
+\usepackage[nottoc]{tocbibind}
+
 %% Вставка картинок
 \usepackage{graphicx}
 \graphicspath{{Picture/}}
 \DeclareGraphicsExtensions{.pdf,.png,.jpg}
-
-%% Источники
-\usepackage[nottoc]{tocbibind}
 
 %% Работа с ссылками
 \usepackage{url}
@@ -174,8 +174,27 @@
 
 \section{Проектирование модели данных}
 \subsection{ER диаграмма}
-\subsection{Ограничения наложенные на данные}
-\subsection{Нормализованная схема}
+На основе функциональных требований был выделен следующий набор сущностей и связей, который мы отобразили в виде ER диаграммы (рис. \ref{fig:ER}). Стоит заметить, что для избавления от слабых сущностей были добавлены id, уникальные идентификаторы объектов.
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.28]{thisMoview.png}
+    \caption{ER Diagram}
+    \label{fig:ER}
+\end{figure}
+\subsection{Текстовое описание ограничения наложенные на данные}
+У каждого фильма обязательно, есть название, продюсер, дата создания и студия создавшая фильм, а также может присутствовать описание. К фильму обязательно относится один или несколько жанров и каст актеров. Для продюсера и актера обязательными полями являются имя, фамилия и день рождения, а также может присутствовать описание (краткая биография). Для жанра и студии обязательными полями является только имя, но может присутствовать и описание. Фильм, продюсер и актеры могут иметь одну или несколько наград, у награды обязательно есть название и описание.
+
+Следующая ключевая сущность это пользователь. У пользователя обязательно есть логин, пароль, имя, фамилия и адрес электронной почты. Пользователь может добавлять один или несколько фильмов в свою коллекцию и по желанию выставлять им рейтинг, а так же присваивать один из предусмотренных статусов или создать свой новый статус. Пользователь может купить билет на сеанс, который обязательно содержит место. Сеанс содержит информацию о дате начала, цене и зале в котором он будет проходить. Зал в свою очередь содержит информацию о его номере, количестве мест и виде рассадки. Вид рассадки описывается в виде json объекта. Так же зал обязательно содержит информацию о кинотеатре в котором он проходит. Кинотеатр обязательно содержит информацию о своем названии, адресе и локации. Так же при наличии данной информации, кинотеатр может хранить в себе станцию метро, рейтинг и средний чек. Локация представляется в виде двух полей город и страна. Станция метро же имеет только название и ссылку на локацию в которой расположена.
+\subsection{Нормализация}
+При построении базы основной задачей ставилось получение 3 нормальной форму. Выбор на данную нормальную форму пал после прочтения книги Rex Hogan \cite{Norm} в которой он советует всегда при проектировки начинать с 3 нормальной форму, как с гипотетического решения и далее только при необходимости переходить на 4 и 5, которые используется реже в промышленных решениях. При нормализации мы так же хотели избавится от аномалии с разными написанием названий городов, наград и тому подобного, поэтому старались по макаемому вынести все в справочники. Итоговая модель представлена на (рис. \ref{fig:tables}).
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.15]{iMovie db.png}
+    \caption{Table Diagram}
+    \label{fig:tables}
+\end{figure}
+
 \subsection{SQL DDL script}
 \begin{lstlisting}[language=SQL]
 -- drop table reward_movie;
@@ -244,7 +263,7 @@ create table producer (
     id number primary key not null,
     name nvarchar2(256) not null,
     surname nvarchar2(256) not null,
-    birthday date,
+    birthday date not null,
     discription nvarchar2(4000)
 );
 
@@ -252,14 +271,13 @@ create table actor (
     id number primary key not null,
     name nvarchar2(256) not null,
     surname nvarchar2(256) not null,
-    birthday date,
+    birthday date not null,
     discription nvarchar2(4000)
 );
 
 create table reward (
-    id number primary key not null,
-    name nvarchar2(256) not null,
-    discription nvarchar2(4000)
+    name nvarchar2(256) primary key not null,
+    discription nvarchar2(4000) not null
 );
 
 create table picture (
@@ -284,7 +302,7 @@ create table room (
     id number primary key not null,
     room_number nvarchar2(256) not null,
     amount_sits number not null,
-    sit_type nvarchar2(4000),
+    sit_type nvarchar2(4000) not null, --Todo add json check
     cinema_id number not null,
     foreign key (cinema_id) references cinema (id)
 );
@@ -298,7 +316,7 @@ create table movie (
     movie_duration number,
     description nvarchar2(4000),
     producer_id number not null,
-    studio_name nvarchar2(256),
+    studio_name nvarchar2(256) not null,
     foreign key (producer_id) references producer (id),
     foreign key (studio_name) references studio (name)
 );
@@ -325,6 +343,7 @@ create table ticket (
 create table user_movie (
     movie_id number not null,
     user_login nvarchar2(256) not null,
+    rating number,
     constraint user_movie_pk primary key (movie_id, user_login),
     foreign key (user_login) references app_user (login),
     foreign key (movie_id) references movie (id)
@@ -349,18 +368,18 @@ create table genre_movie (
 
 create table producer_reward (
     producer_id number not null,
-    reward_id number not null, 
-    constraint producer_reward_pk primary key (producer_id, reward_id),
+    reward_name nvarchar2(256) not null, 
+    constraint producer_reward_pk primary key (producer_id, reward_name),
     foreign key (producer_id) references producer (id),
-    foreign key (reward_id) references reward (id)
+    foreign key (reward_name) references reward (name)
 );
 
 create table actor_reward (
     actor_id number not null,
-    reward_id number not null,
-    constraint actor_reward_pk primary key (actor_id, reward_id),
+    reward_name nvarchar2(256) not null,
+    constraint actor_reward_pk primary key (actor_id, reward_name),
     foreign key (actor_id) references actor (id),
-    foreign key (reward_id) references reward (id)
+    foreign key (reward_name) references reward (name)
 );
 
 create table actor_movie (
@@ -374,16 +393,16 @@ create table actor_movie (
 create table picture_movie (
     picture_id number not null,
     movie_id number not null,
-    constraint picture_movie_id primary key (picture_id, movie_id),
+    constraint picture_movie_pk primary key (picture_id, movie_id),
     foreign key (picture_id) references picture (id),
     foreign key (movie_id) references movie (id)
 );
 
 create table reward_movie (
-    reward_id number not null,
+    reward_name nvarchar2(256) not null,
     movie_id number not null,
-    constraint reward_movie_id primary key (reward_id, movie_id),
-    foreign key (reward_id) references reward (id),
+    constraint reward_movie_pk primary key (reward_name, movie_id),
+    foreign key (reward_name) references reward (name),
     foreign key (movie_id) references movie (id)
 );
 \end{lstlisting}
@@ -393,6 +412,9 @@ create table reward_movie (
 \subsection{Запросы для вкладки список кинотеатров}
 \subsection{Запросы для вкладки коллекция фильмов}
 \subsection{Запросы для вкладки профиль}
+
+\bibliographystyle{unsrt}                                   
+\bibliography{references}
 
 \end{document}
 
